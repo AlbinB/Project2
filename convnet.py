@@ -42,7 +42,7 @@ final_conv_layer = tf.layers.conv2d(normalized_image,
 # convert 3d image to 1d tensor (don't change batch dimension)
 flat_tensor = tf.contrib.layers.flatten(final_conv_layer)
 
-#TODO improve fully connected layers
+
 ## Neural network hidden layers
 
 hidden_layer_1 = tf.nn.dropout(tf.layers.dense(tf.layers.batch_normalization(flat_tensor, training=True),
@@ -62,7 +62,6 @@ loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=label_on
 #TODO choose better backpropagation
 # backpropagation algorithm
 train = tf.train.AdamOptimizer().minimize(loss)
-
 accuracy = dataUtils.accuracy(logits, label_one_hot)
 
 # summaries
@@ -103,7 +102,7 @@ with tf.Session() as sess:
         # every 10 steps check accuracy
         if step_count % 10 ==  0:
             # get Batch of test data
-            batch_test_data, batch_test_labels = dataUtils.getCIFAR10Batch(is_eval=True, batch_size=50)
+            batch_test_data, batch_test_labels = dataUtils.getCIFAR10Batch(is_eval=True, batch_size=100)
 
             # do eval step to test accuracy
             test_accuracy, test_loss, summary = sess.run([accuracy, loss, summary_tensor], feed_dict={input_placeholder: batch_test_data,
