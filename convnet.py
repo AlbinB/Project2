@@ -31,7 +31,6 @@ tf.summary.image("input_image", input_placeholder)
 normalized_image = tf.map_fn(lambda frame: tf.image.per_image_standardization(frame), input_placeholder)
 
 #conv layers
-
 final_conv_layer = tf.layers.conv2d(normalized_image,
                                     filters=10,
                                     kernel_size=(3, 3),
