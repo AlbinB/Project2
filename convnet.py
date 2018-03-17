@@ -31,14 +31,23 @@ tf.summary.image("input_image", input_placeholder)
 normalized_image = tf.map_fn(lambda frame: tf.image.per_image_standardization(frame), input_placeholder)
 
 #TODO add conv layers here
-final_conv_layer = normalized_image # change me
+
+final_conv_layer = tf.layers.conv2d(normalized_image,
+                                    filters=10,
+                                    kernel_size=(3, 3),
+                                    strides=(1, 1),
+                                    padding='same',
+                                    activation=tf.nn.relu)
+
 
 # convert 3d image to 1d tensor (don't change batch dimension)
 flat_tensor = tf.contrib.layers.flatten(final_conv_layer)
 
 #TODO improve fully connected layers
 ## Neural network hidden layers
-hidden_layer_1 = tf.layers.dense(flat_tensor, 10, activation=tf.nn.relu)
+
+hidden_layer1 = tf.nn.dropout(tf.layers.dense(tf.layers.batch_normalization(flat_tensor, training=True),
+                                              113, activation=tf.nn.relu), keep_prob=0.9)
 
 ## Logit layer
 logits = tf.layers.dense(hidden_layer_1, 10)
