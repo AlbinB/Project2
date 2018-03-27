@@ -18,38 +18,88 @@ TENSORBOARD_LOGDIR = "logdir"
 # Clear the old log files
 dataUtils.deleteDirectory(TENSORBOARD_LOGDIR)
 
-
 ### Build tensorflow blueprint ###
 # Tensorflow placeholder
 input_placeholder = tf.placeholder(tf.float32, shape=[None, 32, 32 ,3])
 
 # View sample inputs in tensorboard
+#TO DO: in tensorboard make picure label visible
 tf.summary.image("input_image", input_placeholder)
 
 # Normalize image
 # Subtract off the mean and divide by the variance of the pixels.
 normalized_image = tf.map_fn(lambda frame: tf.image.per_image_standardization(frame), input_placeholder)
 
-#conv layers
-final_conv_layer = tf.layers.conv2d(normalized_image,
-                                    filters=10,
-                                    kernel_size=(3, 3),
-                                    strides=(1, 1),
-                                    padding='same',
-                                    activation=tf.nn.relu)
+#conv & pooling layers
+conv_layer_1 = tf.layers.conv2d(normalized_image,
+                                filters=25,
+                                kernel_size=(3, 3),
+                                strides=(1, 1),
+                                padding='same',
+                                activation=tf.nn.relu)
+
+conv_layer_2 = tf.layers.conv2d(conv_layer_1,
+                                filters=50,
+                                kernel_size=(3, 3),
+                                strides=(1, 1),
+                                padding='same',
+                                activation=tf.nn.relu)
+
+pool_layer_1 = tf.layers.max_pooling2d(conv_layer_2,
+                                strides=2,
+                                pool_size=2)
+
+conv_layer_3 = tf.layers.conv2d(pool_layer_1,
+                                filters=100,
+                                kernel_size=(3, 3),
+                                strides=(1, 1),
+                                padding='same',
+                                activation=tf.nn.relu)
+
+conv_layer_4 = tf.layers.conv2d(conv_layer_3,
+                                filters=150,
+                                kernel_size=(3, 3),
+                                strides=(1, 1),
+                                padding='same',
+                                activation=tf.nn.relu)
+
+pool_layer_2 = tf.layers.max_pooling2d(conv_layer_4,
+                                strides=2,
+                                pool_size=2)
+
+conv_layer_5 = tf.layers.conv2d(pool_layer_2,
+                                filters=300,
+                                kernel_size=(3, 3),
+                                strides=(1, 1),
+                                padding='same',
+                                activation=tf.nn.relu)
+
+final_conv_layer = tf.layers.conv2d(conv_layer_5,
+                                filters=200,
+                                kernel_size=(3, 3),
+                                strides=(1, 1),
+                                padding='same',
+                                activation=tf.nn.relu)
+
+final_pool_layer  = tf.layers.max_pooling2d(final_conv_layer,
+                                        strides=2,
+                                        pool_size=2)
 
 
 # convert 3d image to 1d tensor (don't change batch dimension)
-flat_tensor = tf.contrib.layers.flatten(final_conv_layer)
+flat_tensor = tf.contrib.layers.flatten(final_pool_layer)
 
 
 ## Neural network hidden layers
 
-hidden_layer_1 = tf.nn.dropout(tf.layers.dense(tf.layers.batch_normalization(flat_tensor, training=True),
+hidden_layer_in = tf.nn.dropout(tf.layers.dense(tf.layers.batch_normalization(flat_tensor, training=True),
                                               113, activation=tf.nn.relu), keep_prob=0.9)
 
+#hidden_layer_out = tf.nn.dropout(tf.layers.dense(tf.layers.batch_normalization(hidden_layer_in, training=True),
+#                                              113, activation=tf.nn.relu), keep_prob=0.9)
+
 ## Logit layer
-logits = tf.layers.dense(hidden_layer_1, 10)
+logits = tf.layers.dense(hidden_layer_in, 10)
 
 
 # label placeholder
@@ -122,3 +172,6 @@ with tf.Session() as sess:
         # stop training after 1,000 steps
         if step_count > 10000:
             break
+
+
+
