@@ -1,3 +1,12 @@
+data/
+logdir/
+logdir0/
+logdir1/
+logdir2/
+logdir3/
+logdir4/
+model/
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
